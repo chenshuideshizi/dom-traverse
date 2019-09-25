@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>遍历dom</title>
+</head>
+<body>
+  <h1>输出一个页面中用到的标签的数组</h1>
+  <div id="root">
+    <div>
+      <span>
+        <p></p>
+      </span>
+    </div>
+    <p>
+      <span></span>
+    </p>
+    <h1></h1>
+  </div>
+
+  <script>
+    
+    // 广度优化遍历dom
+    (function () {
+      var arr = []
+      var root = document.querySelector('#root')
+
+      domBFS(root, function (element) {
+        arr.push(element.tagName)
+      })
+
+      console.log(arr) // ["DIV", "DIV", "P", "H1", "SPAN", "SPAN", "P"]
+
+
+      function domBFS (element, callback) {
+        var queue = []
+        while (element) {
+          callback(element)
+
+          if (element.children.length !== 0) {
+            for (var i = 0, l = element.children.length; i < l; i++) {
+              queue.push(element.children[i])
+            }
+          }
+
+          element = queue.shift()
+        }
+      }
+    })()
+
+    // 深度优先遍历dom
+    ;(function () {
+      var arr = []
+      var root = document.querySelector('#root')
+
+      domDFS(root, function (element) {
+        arr.push(element.tagName)
+      })
+
+      console.log(arr) // ["DIV", "DIV", "SPAN", "P", "P", "SPAN", "H1"]
+
+      function domDFS (element, callback) {
+        var stack = []
+        while (element) {
+          callback(element)
+
+          if (element.children.length !== 0) {
+            let l = element.children.length
+            while (l--) {
+              stack.push(element.children[l])
+            }
+          }
+          element = stack.pop()
+        }
+      }
+    })()
+
+    // ES6生成器函数
+  ;(function () {
+    var arr = []
+    var root = document.querySelector('#root')
+    for (let element of domTraversal(root)) {
+      arr.push(element.tagName)
+    }
+    console.log(arr) // ["DIV", "DIV", "SPAN", "P", "P", "SPAN", "H1"]
+
+
+    function* domTraversal (element) {
+      yield element
+
+      element = element.firstElementChild
+      while (element) {
+        yield* domTraversal(element)
+        element = element.nextElementSibling
+      }
+    }
+  })()
+  </script>
+  
+</body>
+</html>
